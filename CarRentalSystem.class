@@ -1,0 +1,172 @@
+// Source code is decompiled from a .class file using FernFlower decompiler.
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Scanner;
+
+class CarRentalSystem {
+   private List<Car> cars = new ArrayList();
+   private List<Customer> customers = new ArrayList();
+   private List<Rental> rentals = new ArrayList();
+
+   public CarRentalSystem() {
+   }
+
+   public void addCar(Car var1) {
+      this.cars.add(var1);
+   }
+
+   public void addCustomer(Customer var1) {
+      this.customers.add(var1);
+   }
+
+   public void rentCar(Car var1, Customer var2, int var3) {
+      if (var1.isAvailable()) {
+         var1.rent();
+         this.rentals.add(new Rental(var1, var2, var3));
+      } else {
+         System.out.println("Car is not available for rent.");
+      }
+
+   }
+
+   public void returnCar(Car var1) {
+      var1.returnCar();
+      Rental var2 = null;
+      Iterator var3 = this.rentals.iterator();
+
+      while(var3.hasNext()) {
+         Rental var4 = (Rental)var3.next();
+         if (var4.getCar() == var1) {
+            var2 = var4;
+            break;
+         }
+      }
+
+      if (var2 != null) {
+         this.rentals.remove(var2);
+      } else {
+         System.out.println("Car was not rented.");
+      }
+
+   }
+
+   public void menu() {
+      Scanner var1 = new Scanner(System.in);
+
+      while(true) {
+         while(true) {
+            System.out.println("===== Car Rental System =====");
+            System.out.println("1. Rent a Car");
+            System.out.println("2. Return a Car");
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice: ");
+            int var2 = var1.nextInt();
+            var1.nextLine();
+            String var3;
+            if (var2 == 1) {
+               System.out.println("\n== Rent a Car ==\n");
+               System.out.print("Enter your name: ");
+               var3 = var1.nextLine();
+               System.out.println("\nAvailable Cars:");
+               Iterator var11 = this.cars.iterator();
+
+               PrintStream var10000;
+               String var10001;
+               while(var11.hasNext()) {
+                  Car var14 = (Car)var11.next();
+                  if (var14.isAvailable()) {
+                     var10000 = System.out;
+                     var10001 = var14.getCarId();
+                     var10000.println(var10001 + " - " + var14.getBrand() + " " + var14.getModel());
+                  }
+               }
+
+               System.out.print("\nEnter the car ID you want to rent: ");
+               String var12 = var1.nextLine();
+               System.out.print("Enter the number of days for rental: ");
+               int var16 = var1.nextInt();
+               var1.nextLine();
+               Customer var17 = new Customer("CUS" + (this.customers.size() + 1), var3);
+               this.addCustomer(var17);
+               Car var18 = null;
+               Iterator var8 = this.cars.iterator();
+
+               while(var8.hasNext()) {
+                  Car var9 = (Car)var8.next();
+                  if (var9.getCarId().equals(var12) && var9.isAvailable()) {
+                     var18 = var9;
+                     break;
+                  }
+               }
+
+               if (var18 != null) {
+                  double var19 = var18.calculatePrice(var16);
+                  System.out.println("\n== Rental Information ==\n");
+                  System.out.println("Customer ID: " + var17.getCustomerId());
+                  System.out.println("Customer Name: " + var17.getName());
+                  var10000 = System.out;
+                  var10001 = var18.getBrand();
+                  var10000.println("Car: " + var10001 + " " + var18.getModel());
+                  System.out.println("Rental Days: " + var16);
+                  System.out.printf("Total Price: $%.2f%n", var19);
+                  System.out.print("\nConfirm rental (Y/N): ");
+                  String var10 = var1.nextLine();
+                  if (var10.equalsIgnoreCase("Y")) {
+                     this.rentCar(var18, var17, var16);
+                     System.out.println("\nCar rented successfully.");
+                  } else {
+                     System.out.println("\nRental canceled.");
+                  }
+               } else {
+                  System.out.println("\nInvalid car selection or car not available for rent.");
+               }
+            } else if (var2 != 2) {
+               if (var2 == 3) {
+                  System.out.println("\nThank you for using the Car Rental System!");
+                  return;
+               }
+
+               System.out.println("Invalid choice. Please enter a valid option.");
+            } else {
+               System.out.println("\n== Return a Car ==\n");
+               System.out.print("Enter the car ID you want to return: ");
+               var3 = var1.nextLine();
+               Car var4 = null;
+               Iterator var5 = this.cars.iterator();
+
+               while(var5.hasNext()) {
+                  Car var6 = (Car)var5.next();
+                  if (var6.getCarId().equals(var3) && !var6.isAvailable()) {
+                     var4 = var6;
+                     break;
+                  }
+               }
+
+               if (var4 == null) {
+                  System.out.println("Invalid car ID or car is not rented.");
+               } else {
+                  Customer var13 = null;
+                  Iterator var15 = this.rentals.iterator();
+
+                  while(var15.hasNext()) {
+                     Rental var7 = (Rental)var15.next();
+                     if (var7.getCar() == var4) {
+                        var13 = var7.getCustomer();
+                        break;
+                     }
+                  }
+
+                  if (var13 != null) {
+                     this.returnCar(var4);
+                     System.out.println("Car returned successfully by " + var13.getName());
+                  } else {
+                     System.out.println("Car was not rented or rental information is missing.");
+                  }
+               }
+            }
+         }
+      }
+   }
+}
